@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Movie Picker') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,6 +20,8 @@
         @endif
     </head>
     <body class="bg-[#2E2929] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        
+        <div class=justify-center>
+            <p class="text-white text-3xl mb-4">Movie Picker</p>
+            </div>
     </body>
 </html>
