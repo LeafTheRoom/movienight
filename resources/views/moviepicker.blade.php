@@ -19,7 +19,7 @@
             </style>
         @endif
     </head>
-    <body class="bg-[#2E2929] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <body class="bg-[#222] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col" style="background-color: #222; color: #f1f1f1;">
         <div class=justify-center>
             <p class="text-white text-3xl mb-4">Movie Picker</p>
             </div>
