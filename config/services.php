@@ -36,8 +36,8 @@ return [
     ],
 
     'tmdb' => [
-        'token' => env('eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzYTE1NGE4N2U3NzIyMWUzNGI3ZDJiMTAzYjZhODkwMiIsIm5iZiI6MTczMzczNDU0Mi43MDU5OTk5LCJzdWIiOiI2NzU2YjA4ZTA5ODJiNDYyNjc4YTI2YTkiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.0TQ06SHm1Qfxee8B27EidGbOj-b72UKMaOIX90SiJLc'),
-        'key' => env('3a154a87e77221e34b7d2b103b6a8902'),
+        'token' => 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjOGYyZjE5MmE5NTJkY2M0ZjlhZDEwZDFjMTcwOWI2NCIsIm5iZiI6MTczMzczNDU0Mi43MDU5OTk5LCJzdWIiOiI2NzU2YjA4ZTA5ODJiNDYyNjc4YTI2YTkiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.DFVzUvivQvbvUKDDQk2vB2grk5qBiCqnk0yqyDSSX-A',
+        'key' => 'c8f2f192a952dcc4f9ad10d1c1709b64',
         'base_url' => 'https://api.themoviedb.org/3',
     ],
 ];
