@@ -9,6 +9,56 @@ h1 {
     justify-content: center;
 }
 
+.filters {
+    max-width: 800px;
+    margin: 0 auto 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: bold;
+    color: #333;
+}
+
+.filter-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.filter-group select[multiple] {
+    height: 100px;
+}
+
+.rating-range,
+.year-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-range input,
+.year-range input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 img {
     max-width: 300px;
     border-radius: 8px;

@@ -11,11 +11,49 @@ class TmdbService
     protected $token;
 
     protected $genres = [];
+    protected $watchProviders = [];
 
     public function __construct()
     {
         $this->token = config('services.tmdb.token');
         $this->fetchGenres();
+        $this->fetchAvailableWatchProviders();
+    }
+
+    public function getGenres()
+    {
+        return $this->genres;
+    }
+
+    public function getWatchProviders()
+    {
+        return $this->watchProviders;
+    }
+
+    protected function fetchAvailableWatchProviders()
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get("{$this->baseUrl}/watch/providers/movie", [
+                    'watch_region' => 'NL'
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $this->watchProviders = collect($data['results'] ?? [])
+                    ->map(function ($provider) {
+                        return [
+                            'id' => $provider['provider_id'],
+                            'name' => $provider['provider_name'],
+                            'logo' => "https://image.tmdb.org/t/p/original{$provider['logo_path']}"
+                        ];
+                    })
+                    ->toArray();
+            }
+        } catch (\Exception $e) {
+            \Log::error('TMDB Watch Providers fetch error: ' . $e->getMessage());
+        }
     }
 
     protected function fetchGenres()
@@ -88,31 +126,86 @@ class TmdbService
         }
     }
 
-    public function getRandomMovie()
+    public function getRandomMovie($filters = [])
     {
         try {
-            
-            $page = rand(1, 20); 
-            
-            $response = Http::withToken($this->token)
-                ->withHeaders([
-                    'Accept' => 'application/json',
-                ])
-                ->get("{$this->baseUrl}/movie/popular", [
-                    'language' => 'en-US',
-                    'page' => $page,
-                ]);
+            // Function to make the API request with given params
+            $fetchMovies = function($params) {
+                $response = Http::withToken($this->token)
+                    ->withHeaders(['Accept' => 'application/json'])
+                    ->get("{$this->baseUrl}/discover/movie", $params);
 
-            if (!$response->successful()) {
-                \Log::error('TMDB Error: ' . $response->body());
-                return ['error' => 'Error ' . $response->status() . ': ' . $response->body()];
+                if (!$response->successful()) {
+                    \Log::error('TMDB Error: ' . $response->body());
+                    return null;
+                }
+
+                $data = $response->json();
+                return $data['results'] ?? [];
+            };
+
+            // Base parameters
+            $baseParams = [
+                'language' => 'en-US',
+                'watch_region' => 'NL',
+            ];
+
+            // Try with original filters
+            $params = $baseParams;
+            
+            // Get total pages for the filtered results
+            $initialResponse = Http::withToken($this->token)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get("{$this->baseUrl}/discover/movie", array_merge($params, ['page' => 1]));
+            
+            $totalPages = $initialResponse->json()['total_pages'] ?? 1;
+            $page = $totalPages > 1 ? rand(1, min($totalPages, 20)) : 1;
+            $params['page'] = $page;
+
+            // Add filters one by one and check if we still get results
+            if (!empty($filters['genres'])) {
+                $params['with_genres'] = implode(',', $filters['genres']);
             }
 
-            $data = $response->json();
-            $results = $data['results'] ?? [];
-            
+            $results = $fetchMovies($params);
             if (empty($results)) {
-                return ['error' => 'Geen films gevonden'];
+                // Try without genres
+                unset($params['with_genres']);
+            }
+
+            if (!empty($filters['providers']) && !empty($results)) {
+                $params['with_watch_providers'] = implode('|', $filters['providers']);
+                $tempResults = $fetchMovies($params);
+                if (!empty($tempResults)) $results = $tempResults;
+            }
+
+            if (!empty($filters['minRating']) && !empty($results)) {
+                $params['vote_average.gte'] = $filters['minRating'];
+                $tempResults = $fetchMovies($params);
+                if (!empty($tempResults)) $results = $tempResults;
+            }
+
+            if (!empty($filters['maxRating']) && !empty($results)) {
+                $params['vote_average.lte'] = $filters['maxRating'];
+                $tempResults = $fetchMovies($params);
+                if (!empty($tempResults)) $results = $tempResults;
+            }
+
+            if (!empty($filters['fromYear']) && !empty($results)) {
+                $params['primary_release_date.gte'] = $filters['fromYear'] . '-01-01';
+                $tempResults = $fetchMovies($params);
+                if (!empty($tempResults)) $results = $tempResults;
+            }
+
+            if (!empty($filters['toYear']) && !empty($results)) {
+                $params['primary_release_date.lte'] = $filters['toYear'] . '-12-31';
+                $tempResults = $fetchMovies($params);
+                if (!empty($tempResults)) $results = $tempResults;
+            }
+
+            // If still no results, fetch without any filters
+            if (empty($results)) {
+                $results = $fetchMovies($baseParams);
             }
 
             $movie = $results[array_rand($results)];
