@@ -20,11 +20,11 @@
 
     btn.addEventListener('click', async () => {
       try {
-        const res = await fetch('/movies/random');
+        const res = await fetch('/movies/random'); 
         const data = await res.json();
 
         if (data.error) {
-          result.innerHTML = `<p>Fout: ${data.error}</p>`;
+          result.innerHTML = `<p>Fout: ${data.error}</p>`; 
         } else {
           const poster = data.poster_full ?? '';
           result.innerHTML = `
@@ -38,6 +38,18 @@
                 <p><strong>Release:</strong> ${data.release_date ?? 'N/A'}</p>
                 <p>${data.overview ?? ''}</p>
                 <p><strong>Rating:</strong> ${data.vote_average ? `${(data.vote_average * 10).toFixed(1)}%` : 'N/A'}</p>
+                ${data.watch_providers && data.watch_providers.length > 0 ? `
+                <div class="watch-providers">
+                  <p><strong>Beschikbaar op:</strong></p>
+                  <div class="provider-logos">
+                    ${data.watch_providers.map(provider => `
+                      <a href="${data.watch_link}" target="_blank" class="provider-logo" title="Kijk op ${provider.name}">
+                        <img src="${provider.logo}" alt="${provider.name}" width="40" height="40">
+                      </a>
+                    `).join('')}
+                  </div>
+                </div>
+                ` : '<p><strong>Niet beschikbaar om te streamen</strong></p>'}
               </div>
             </div>
           `;

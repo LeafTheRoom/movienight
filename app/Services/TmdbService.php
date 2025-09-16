@@ -34,7 +34,57 @@ class TmdbService
                 $this->genres = collect($data['genres'] ?? [])->pluck('name', 'id')->toArray();
             }
         } catch (\Exception $e) {
-            \Log::error('TMDB Genre Fetch Error: ' . $e->getMessage());
+            \Log::error('TMDB Genre fetch error' . $e->getMessage());
+        }
+    }
+
+    protected function fetchWatchProviders($movieId)
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                ])
+                ->get("{$this->baseUrl}/movie/{$movieId}/watch/providers");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                $countryData = $data['results']['NL'] ?? $data['results']['US'] ?? [];
+                $link = $countryData['link'] ?? ''; 
+                
+                $allProviders = collect();
+                if (!empty($countryData['flatrate'])) {
+                    $allProviders = $allProviders->concat($countryData['flatrate']);
+                }
+                if (!empty($countryData['free'])) {
+                    $allProviders = $allProviders->concat($countryData['free']);
+                }
+                if (!empty($countryData['rent'])) {
+                    $allProviders = $allProviders->concat($countryData['rent']);
+                }
+                if (!empty($countryData['buy'])) {
+                    $allProviders = $allProviders->concat($countryData['buy']);
+                }
+                
+                return [
+                    'providers' => $allProviders
+                        ->unique('provider_id')
+                        ->map(function ($provider) {
+                            return [
+                                'name' => $provider['provider_name'],
+                                'logo' => 'https://image.tmdb.org/t/p/original' . $provider['logo_path']
+                            ];
+                        })
+                        ->values()
+                        ->toArray(),
+                    'link' => $link
+                ];
+            }
+            return [];
+        } catch (\Exception $e) {
+            \Log::error('TMDB Watch Providers Error: ' . $e->getMessage());
+            return [];
         }
     }
 
@@ -62,7 +112,7 @@ class TmdbService
             $results = $data['results'] ?? [];
             
             if (empty($results)) {
-                return ['error' => 'No movies found'];
+                return ['error' => 'Geen films gevonden'];
             }
 
             $movie = $results[array_rand($results)];
@@ -75,6 +125,8 @@ class TmdbService
                 ->values()
                 ->toArray();
 
+            $watchProvidersData = $this->fetchWatchProviders($movie['id']);
+
             return [
                 'title' => $movie['title'] ?? '',
                 'overview' => $movie['overview'] ?? '',
@@ -82,7 +134,9 @@ class TmdbService
                 'release_date' => $movie['release_date'] ?? '',
                 'vote_average' => $movie['vote_average'] ?? null,
                 'vote_count' => $movie['vote_count'] ?? 0,
-                'genres' => $genres
+                'genres' => $genres,
+                'watch_providers' => $watchProvidersData['providers'] ?? [],
+                'watch_link' => $watchProvidersData['link'] ?? ''
             ];
         } catch (\Exception $e) {
             \Log::error('TMDB Service Error: ' . $e->getMessage());

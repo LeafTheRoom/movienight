@@ -54,7 +54,7 @@ img {
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;
 }
 
 .primary-btn:hover {
@@ -66,4 +66,41 @@ img {
 .justify-center {
     display: flex;
     justify-content: center;
+}
+
+.watch-providers {
+    margin-top: 15px;
+}
+
+.provider-logos {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.provider-logo {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.provider-logo img {
+    border: 2px solid #fff;
+    border-radius: 8px;
+    max-width: 40px;
+    height: auto;
+    transition: all 0.2s;
+}
+
+.provider-logo:hover img {
+    transform: scale(1.1);
+    border-color: #4caf50;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.watch-info {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: #666;
+    text-align: center;
 }

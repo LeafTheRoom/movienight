@@ -14,7 +14,7 @@ class MoviePickerController extends Controller
     public function random(): JsonResponse
     {
         try {
-            Log::info('Fetching random movie from TMDB...');
+            Log::info('Film fetchen van TMDB');
             $movie = $this->tmdb->getRandomMovie();
             
             if (isset($movie['error'])) {
@@ -25,7 +25,7 @@ class MoviePickerController extends Controller
             return response()->json($movie);
         } catch (\Exception $e) {
             Log::error('MoviePicker error: ' . $e->getMessage());
-            return response()->json(['error' => 'Error fetching movie: ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Error met fetchen film ' . $e->getMessage()], 500);
         }
     }
 }
