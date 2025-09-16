@@ -12,6 +12,7 @@ h1 {
 img {
     max-width: 300px;
     border-radius: 8px;
+    border: solid;
 }
 
 .card {
@@ -30,7 +31,6 @@ img {
     cursor: pointer;
 }
 
-/* Hover effect */
 .card:hover {
     background-color: #c8c8c8;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -54,11 +54,11 @@ img {
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
+    transition: all 0.3s ease; 
 }
 
 .primary-btn:hover {
     background-color: #3e8f41;
-    transition: all 0.3s ease;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 

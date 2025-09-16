@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="/css/moviepicker.css">
 </head>
 <body>
-  <h1>Random Movie Picker</h1>
+  <h1>Random Movie Picker &#127916;</h1>
   <div id="result"></div>
   <div class="justify-center">
     <div class="gap">
@@ -34,8 +34,10 @@
               </div>
               <div>
                 <h2>${data.title ?? 'Geen titel'}</h2>
+                <p><strong>Genre:</strong> ${data.genres ? data.genres.map(g => g.name).join(', ') : 'N/A'}</p>
                 <p><strong>Release:</strong> ${data.release_date ?? 'N/A'}</p>
                 <p>${data.overview ?? ''}</p>
+                <p><strong>Rating:</strong> ${data.vote_average ? `${(data.vote_average * 10).toFixed(1)}%` : 'N/A'}</p>
               </div>
             </div>
           `;

@@ -10,16 +10,39 @@ class TmdbService
     protected $baseUrl = 'https://api.themoviedb.org/3';
     protected $token;
 
+    protected $genres = [];
+
     public function __construct()
     {
         $this->token = config('services.tmdb.token');
+        $this->fetchGenres();
+    }
+
+    protected function fetchGenres()
+    {
+        try {
+            $response = Http::withToken($this->token)
+                ->withHeaders([
+                    'Accept' => 'application/json',
+                ])
+                ->get("{$this->baseUrl}/genre/movie/list", [
+                    'language' => 'en-US',
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $this->genres = collect($data['genres'] ?? [])->pluck('name', 'id')->toArray();
+            }
+        } catch (\Exception $e) {
+            \Log::error('TMDB Genre Fetch Error: ' . $e->getMessage());
+        }
     }
 
     public function getRandomMovie()
     {
         try {
-            // Get a random page of popular movies (TMDB has up to 500 pages)
-            $page = rand(1, 20); // Let's start with first 20 pages to be safe
+            
+            $page = rand(1, 20); 
             
             $response = Http::withToken($this->token)
                 ->withHeaders([
@@ -44,12 +67,22 @@ class TmdbService
 
             $movie = $results[array_rand($results)];
             
+            $genres = collect($movie['genre_ids'] ?? [])
+                ->take(3)
+                ->map(function ($genreId) {
+                    return ['name' => $this->genres[$genreId] ?? 'Unknown'];
+                })
+                ->values()
+                ->toArray();
+
             return [
                 'title' => $movie['title'] ?? '',
                 'overview' => $movie['overview'] ?? '',
                 'poster_full' => !empty($movie['poster_path']) ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : null,
                 'release_date' => $movie['release_date'] ?? '',
-                'rating' => $movie['vote_average'] ?? '',
+                'vote_average' => $movie['vote_average'] ?? null,
+                'vote_count' => $movie['vote_count'] ?? 0,
+                'genres' => $genres
             ];
         } catch (\Exception $e) {
             \Log::error('TMDB Service Error: ' . $e->getMessage());
