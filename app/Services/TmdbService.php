@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 
-class TmdbService
+class TmdbService 
 {
     protected $apiToken;
     protected $baseUrl = 'https://api.themoviedb.org/3';

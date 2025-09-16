@@ -4,27 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Random Movie Picker</title>
-  <style>
-    body { font-family: system-ui, Arial; margin: 24px; }
-    img { max-width: 300px; border-radius: 8px; }
-    .card { display: flex; gap: 16px; align-items: flex-start; margin-top: 16px; }
-    .card div { max-width: 600px; }
-  </style>
+  <link rel="stylesheet" href="/css/moviepicker.css">
 </head>
 <body>
   <h1>Random Movie Picker</h1>
-  <button id="pick">Kies</button>
   <div id="result"></div>
-
+  <div class="justify-center">
+    <div class="gap">
+  <button class="primary-btn" id="pick">Kies</button>
+  </div>
+</div>
   <script>
     const btn = document.getElementById('pick');
     const result = document.getElementById('result');
 
     btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      btn.textContent = 'Even kiezen...';
-      result.innerHTML = '';
-
       try {
         const res = await fetch('/movies/random');
         const data = await res.json();
