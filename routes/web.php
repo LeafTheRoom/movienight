@@ -15,3 +15,6 @@ Route::controller(MovieController::class)->group(function () {
 
 Route::view('/moviepicker', 'moviepicker');
 
+// Movie details route
+
+Route::get('/movies/{id}', [MovieController::class, 'show']);

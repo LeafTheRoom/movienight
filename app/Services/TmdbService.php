@@ -129,7 +129,6 @@ class TmdbService
     public function getRandomMovie($filters = [])
     {
         try {
-            // Function to make the API request with given params
             $fetchMovies = function($params) {
                 $response = Http::withToken($this->token)
                     ->withHeaders(['Accept' => 'application/json'])
@@ -144,16 +143,13 @@ class TmdbService
                 return $data['results'] ?? [];
             };
 
-            // Base parameters
             $baseParams = [
                 'language' => 'en-US',
                 'watch_region' => 'NL',
             ];
 
-            // Try with original filters
             $params = $baseParams;
             
-            // Get total pages for the filtered results
             $initialResponse = Http::withToken($this->token)
                 ->withHeaders(['Accept' => 'application/json'])
                 ->get("{$this->baseUrl}/discover/movie", array_merge($params, ['page' => 1]));
@@ -162,14 +158,12 @@ class TmdbService
             $page = $totalPages > 1 ? rand(1, min($totalPages, 20)) : 1;
             $params['page'] = $page;
 
-            // Add filters one by one and check if we still get results
             if (!empty($filters['genres'])) {
                 $params['with_genres'] = implode(',', $filters['genres']);
             }
 
             $results = $fetchMovies($params);
             if (empty($results)) {
-                // Try without genres
                 unset($params['with_genres']);
             }
 
@@ -203,7 +197,6 @@ class TmdbService
                 if (!empty($tempResults)) $results = $tempResults;
             }
 
-            // If still no results, fetch without any filters
             if (empty($results)) {
                 $results = $fetchMovies($baseParams);
             }
@@ -220,7 +213,10 @@ class TmdbService
 
             $watchProvidersData = $this->fetchWatchProviders($movie['id']);
 
+
+
             return [
+                'id' => $movie['id'],  
                 'title' => $movie['title'] ?? '',
                 'overview' => $movie['overview'] ?? '',
                 'poster_full' => !empty($movie['poster_path']) ? 'https://image.tmdb.org/t/p/w500' . $movie['poster_path'] : null,
@@ -236,4 +232,9 @@ class TmdbService
             return ['error' => 'Error fetching movie: ' . $e->getMessage()];
         }
     }
+
+    public function getWatchProvidersForMovie($movieId)
+{
+    return $this->fetchWatchProviders($movieId);
+}
 }

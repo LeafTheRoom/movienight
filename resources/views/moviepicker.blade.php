@@ -13,14 +13,12 @@
         <div class="filter-group">
             <label for="genre">Genre:</label>
             <select id="genre" multiple>
-                <!-- Will be populated via JavaScript -->
             </select>
         </div>
         
         <div class="filter-group">
-            <label for="provider">Watch Provider:</label>
+            <label for="provider">Streamingdiensten:</label>
             <select id="provider" multiple>
-                <!-- Will be populated via JavaScript -->
             </select>
         </div>
         
@@ -34,7 +32,7 @@
         </div>
         
         <div class="filter-group">
-            <label>Release Year:</label>
+            <label>Releasejaar:</label>
             <div class="year-range">
                 <input type="number" id="fromYear" min="1900" max="2025" value="1900">
                 <span>to</span>
@@ -44,6 +42,7 @@
     </div>
 
     <div id="result"></div>
+
     <div class="justify-center">
         <div class="gap">
             <button class="primary-btn" id="pick">Kies</button>
@@ -60,7 +59,6 @@
         const fromYear = document.getElementById('fromYear');
         const toYear = document.getElementById('toYear');
 
-        // Initialize filters with available options
         async function initializeFilters() {
             try {
                 const [genresRes, providersRes] = await Promise.all([
@@ -83,7 +81,6 @@
             }
         }
 
-        // Call initialize on page load
         initializeFilters();
 
         btn.addEventListener('click', async () => {
@@ -101,9 +98,14 @@
                     filters: JSON.stringify(filters)
                 }));
                 const data = await res.json();
-                
+
                 if (data.error) {
                     result.innerHTML = `<p>Fout: ${data.error}</p>`;
+                    return;
+                }
+
+                if (!data.id) {
+                    result.innerHTML = `<p>Fout: Geen film-id beschikbaar</p>`;
                     return;
                 }
 
@@ -111,7 +113,9 @@
                     <div class="card">
                         <div>${data.poster_full ? `<img src="${data.poster_full}" alt="poster">` : ''}</div>
                         <div>
-                            <h2>${data.title ?? 'Geen titel'}</h2>
+                            <h2>
+                                <a href="/movies/${data.id}" target="_blank">${data.title ?? 'Geen titel'}</a>
+                            </h2>
                             <p><strong>Genre:</strong> ${data.genres ? data.genres.map(g => g.name).join(', ') : 'N/A'}</p>
                             <p><strong>Release:</strong> ${data.release_date ?? 'N/A'}</p>
                             <p>${data.overview ?? ''}</p>
