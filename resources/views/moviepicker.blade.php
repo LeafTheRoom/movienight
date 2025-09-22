@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <script>
+    <script> // Kies film op basis van filters
         const btn = document.getElementById('pick');
         const result = document.getElementById('result');
         const genreSelect = document.getElementById('genre');
@@ -83,9 +83,9 @@
 
         initializeFilters();
 
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async () => { 
             try {
-                const filters = {
+                const filters = { // Verzamel de geselecteerde filters
                     genres: Array.from(genreSelect.selectedOptions).map(opt => opt.value),
                     providers: Array.from(providerSelect.selectedOptions).map(opt => opt.value),
                     minRating: minRating.value,

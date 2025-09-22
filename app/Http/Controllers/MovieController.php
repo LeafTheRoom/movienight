@@ -10,12 +10,12 @@ class MovieController extends Controller
 {
     protected $tmdbService;
 
-    public function __construct(TmdbService $tmdbService)
+    public function __construct(TmdbService $tmdbService) 
     {
         $this->tmdbService = $tmdbService;
     }
 
-    public function random(Request $request)
+    public function random(Request $request) // Haal een willekeurige film op met de gegeven filters
 {
     $filters = json_decode($request->get('filters', '{}'), true);
 
@@ -38,7 +38,7 @@ class MovieController extends Controller
         return response()->json($this->tmdbService->getWatchProviders());
     }
 
-public function show($id)
+public function show($id) // Haal details van film op
 {
     $apiKey = config('services.tmdb.key');
 

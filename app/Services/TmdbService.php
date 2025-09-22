@@ -13,39 +13,39 @@ class TmdbService
     protected $genres = [];
     protected $watchProviders = [];
 
-    public function __construct()
+    public function __construct() // De service constructeert de token en haalt genres en providers op
     {
         $this->token = config('services.tmdb.token');
         $this->fetchGenres();
         $this->fetchAvailableWatchProviders();
     }
 
-    public function getGenres()
+    public function getGenres()  
     {
-        return $this->genres;
+        return $this->genres; // Retourneer de genres als een array van id => naam
     }
 
-    public function getWatchProviders()
+    public function getWatchProviders() // Retourneer de watch providers
     {
         return $this->watchProviders;
     }
 
-    protected function fetchAvailableWatchProviders()
+    protected function fetchAvailableWatchProviders() 
     {
-        try {
+        try { // Probeer om de beschikbare streamingsdiensten op te halen
             $response = Http::withToken($this->token)
                 ->withHeaders(['Accept' => 'application/json'])
                 ->get("{$this->baseUrl}/watch/providers/movie", [
                     'watch_region' => 'NL'
                 ]);
 
-            if ($response->successful()) {
+            if ($response->successful()) { // Als de response succesvol is, verwerk de data
                 $data = $response->json();
                 $this->watchProviders = collect($data['results'] ?? [])
                     ->map(function ($provider) {
                         return [
                             'id' => $provider['provider_id'],
-                            'name' => $provider['provider_name'],
+                            'name' => $provider['provider_name'], 
                             'logo' => "https://image.tmdb.org/t/p/original{$provider['logo_path']}"
                         ];
                     })
@@ -58,7 +58,7 @@ class TmdbService
 
     protected function fetchGenres()
     {
-        try {
+        try { // Probeer om de genres op te halen
             $response = Http::withToken($this->token)
                 ->withHeaders([
                     'Accept' => 'application/json',
@@ -78,7 +78,7 @@ class TmdbService
 
     protected function fetchWatchProviders($movieId)
     {
-        try {
+        try { // Probeer om de watch providers voor een specifieke film op te halen
             $response = Http::withToken($this->token)
                 ->withHeaders([
                     'Accept' => 'application/json',
@@ -91,7 +91,7 @@ class TmdbService
                 $countryData = $data['results']['NL'] ?? $data['results']['US'] ?? [];
                 $link = $countryData['link'] ?? ''; 
                 
-                $allProviders = collect();
+                $allProviders = collect(); // Verzamel alle soorten providers
                 if (!empty($countryData['flatrate'])) {
                     $allProviders = $allProviders->concat($countryData['flatrate']);
                 }
@@ -105,7 +105,7 @@ class TmdbService
                     $allProviders = $allProviders->concat($countryData['buy']);
                 }
                 
-                return [
+                return [ // Retourneer de unieke providers met hun naam en logo
                     'providers' => $allProviders
                         ->unique('provider_id')
                         ->map(function ($provider) {
@@ -128,7 +128,7 @@ class TmdbService
 
     public function getRandomMovie($filters = [])
     {
-        try {
+        try { // Probeer om een willekeurige film op te halen op met de filters
             $fetchMovies = function($params) {
                 $response = Http::withToken($this->token)
                     ->withHeaders(['Accept' => 'application/json'])
@@ -148,9 +148,9 @@ class TmdbService
                 'watch_region' => 'NL',
             ];
 
-            $params = $baseParams;
+            $params = $baseParams; 
             
-            $initialResponse = Http::withToken($this->token)
+            $initialResponse = Http::withToken($this->token)  
                 ->withHeaders(['Accept' => 'application/json'])
                 ->get("{$this->baseUrl}/discover/movie", array_merge($params, ['page' => 1]));
             
@@ -158,16 +158,18 @@ class TmdbService
             $page = $totalPages > 1 ? rand(1, min($totalPages, 20)) : 1;
             $params['page'] = $page;
 
+            // Filters toepassen
+
             if (!empty($filters['genres'])) {
                 $params['with_genres'] = implode(',', $filters['genres']);
             }
 
-            $results = $fetchMovies($params);
+            $results = $fetchMovies($params); 
             if (empty($results)) {
                 unset($params['with_genres']);
             }
 
-            if (!empty($filters['providers']) && !empty($results)) {
+            if (!empty($filters['providers']) && !empty($results)) { 
                 $params['with_watch_providers'] = implode('|', $filters['providers']);
                 $tempResults = $fetchMovies($params);
                 if (!empty($tempResults)) $results = $tempResults;
@@ -201,7 +203,7 @@ class TmdbService
                 $results = $fetchMovies($baseParams);
             }
 
-            $movie = $results[array_rand($results)];
+            $movie = $results[array_rand($results)]; // Kies een willekeurige film uit de resultaten
             
             $genres = collect($movie['genre_ids'] ?? [])
                 ->take(3)
@@ -215,7 +217,7 @@ class TmdbService
 
 
 
-            return [
+            return [ // Retourneer de filmgegevens in een een goede structuur
                 'id' => $movie['id'],  
                 'title' => $movie['title'] ?? '',
                 'overview' => $movie['overview'] ?? '',
